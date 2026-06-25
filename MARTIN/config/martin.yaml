@@ -1,0 +1,4 @@
+postgres:
+  connection_string: "postgresql://postgres:pass@localhost:5432/GEOBI"
+
+listen_addresses: "0.0.0.0:3000"

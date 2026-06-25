@@ -1,0 +1,1 @@
+Route::get('/pbb-p2', [PbbController::class, 'index']);
