@@ -290,11 +290,11 @@
             <!-- TITLE -->
             <h1 class="mt-8 text-3xl md:text-4xl font-bold leading-tight text-slate-900 dark:text-white transition-colors duration-300">
 
-                SmartMap Geospatial Business Intelligence perubahanbanyaakbgt
+                SmartMap Geospatial BI 
 
                 <br>
                 <span class="text-cyan-400">
-                    Jakarta SmartTax 88888
+                    Jakarta SmartTax 
                 </span>
 
             </h1>
