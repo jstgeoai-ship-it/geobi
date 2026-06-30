@@ -294,7 +294,7 @@
 
                 <br>
                 <span class="text-cyan-400">
-                    Jakarta SmartTax Apawehhhhhhhhh
+                    Jakarta SmartTax yaachhh
                 </span>
 
             </h1>
