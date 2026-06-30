@@ -7,6 +7,7 @@
 
     <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
     <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+    @vite(['resources/css/app.css'])
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -19,58 +20,36 @@
             height: 100vh;
         }
 
-        /* ── NAVBAR ── */
-        #navbar {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 56px;
-            background: rgba(2, 6, 23, 0.85);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255,255,255,0.07);
-            z-index: 100;
+        /* ── MAP ── */
+        #map { position: absolute; top: 64px; left: 0; right: 0; bottom: 0; }
+
+        /* ── PANEL TOGGLE BTN ── */
+        #panel-toggle {
+            position: absolute;
+            top: 76px;
+            left: 12px;
+            z-index: 11;
+            background: rgba(2, 6, 23, 0.92);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            color: #22d3ee;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 12px;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            gap: 16px;
-        }
-
-        #navbar .logo img { height: 30px; width: auto; display: block; }
-        #navbar .logo { text-decoration: none; flex-shrink: 0; }
-
-        #navbar nav { display: flex; gap: 2px; }
-        #navbar nav a {
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 13px;
-            padding: 5px 10px;
-            border-radius: 6px;
-            transition: color .15s;
+            gap: 6px;
+            transition: background .15s;
             white-space: nowrap;
         }
-        #navbar nav a:hover  { color: #e2e8f0; }
-        #navbar nav a.active { color: #f97316; font-weight: 600; }
-
-        #navbar .auth-btn {
-            background: #f97316;
-            color: #fff;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-            text-decoration: none;
-            flex-shrink: 0;
-        }
-        #navbar .auth-btn:hover { background: #ea6c0a; }
-
-        /* ── MAP ── */
-        #map { position: absolute; top: 56px; left: 0; right: 0; bottom: 0; }
+        #panel-toggle:hover { background: rgba(34,211,238,.1); }
+        #panel-toggle svg { width: 14px; height: 14px; flex-shrink: 0; }
 
         /* ── PANEL KIRI ── */
         #panel {
             position: absolute;
-            top: 68px;
+            top: 116px;
             left: 12px;
             width: 210px;
             background: rgba(2, 6, 23, 0.90);
@@ -78,6 +57,13 @@
             border: 1px solid rgba(255,255,255,0.09);
             border-radius: 12px;
             z-index: 10;
+            transform-origin: top left;
+            transition: opacity .2s, transform .2s;
+        }
+        #panel.hidden {
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
         }
 
         .panel-head {
@@ -214,6 +200,91 @@
         }
         .bm-btn:hover { color: #e2e8f0; border-color: rgba(255,255,255,0.25); }
 
+        /* ── HOVER TOOLTIP ── */
+        #hover-tooltip {
+            position: absolute;
+            pointer-events: none;
+            z-index: 20;
+            background: rgba(2, 6, 23, 0.92);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 11px;
+            color: #e2e8f0;
+            display: none;
+            white-space: nowrap;
+            box-shadow: 0 4px 16px rgba(0,0,0,.5);
+        }
+        #hover-tooltip .tt-row { display: flex; gap: 8px; justify-content: space-between; padding: 2px 0; }
+        #hover-tooltip .tt-key { color: #64748b; }
+        #hover-tooltip .tt-val { font-weight: 600; }
+
+        /* ── SEARCH BAR ── */
+        #search-bar {
+            position: absolute;
+            top: 76px;
+            right: 12px;
+            z-index: 10;
+            display: flex;
+            gap: 0;
+            width: 300px;
+        }
+        #search-input {
+            flex: 1;
+            background: rgba(2, 6, 23, 0.92);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            color: #e2e8f0;
+            font-size: 12px;
+            padding: 7px 12px;
+            outline: none;
+            transition: border-color .15s;
+        }
+        #search-input::placeholder { color: #475569; }
+        #search-input:focus { border-color: rgba(34,211,238,.4); }
+        #search-btn {
+            background: #22d3ee;
+            border: 1px solid #22d3ee;
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            color: #0a0f1e;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 7px 14px;
+            cursor: pointer;
+            transition: background .15s;
+            white-space: nowrap;
+        }
+        #search-btn:hover { background: rgba(34,211,238,.22); }
+        #search-btn:disabled { opacity: .5; cursor: default; }
+
+        #search-results {
+            position: absolute;
+            top: 100%;
+            left: 0; right: 0;
+            margin-top: 4px;
+            background: rgba(2, 6, 23, 0.96);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+            box-shadow: 0 8px 24px rgba(0,0,0,.6);
+        }
+        .sr-item {
+            padding: 8px 12px;
+            font-size: 11px;
+            color: #cbd5e1;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: background .1s;
+        }
+        .sr-item:last-child { border-bottom: none; }
+        .sr-item:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+        .sr-item .sr-name { font-weight: 600; margin-bottom: 2px; }
+        .sr-item .sr-detail { color: #475569; font-size: 10px; }
+        .sr-empty { padding: 10px 12px; font-size: 11px; color: #475569; text-align: center; }
+
         /* ── TOAST ERROR ── */
         #toast {
             position: absolute;
@@ -233,34 +304,18 @@
 </head>
 <body>
 
-<!-- ── NAVBAR ── -->
-<header id="navbar">
-    <a href="{{ url('/home') }}" class="logo">
-        <img src="{{ asset('img/logo.png') }}" alt="Bapenda">
-    </a>
-
-    <nav>
-        <a href="{{ url('/home') }}">Beranda</a>
-        <a href="{{ url('/katalog/pbb-p2') }}" class="active">Katalog</a>
-        <a href="{{ url('/tentang') }}">Tentang</a>
-        <a href="{{ url('/struktur') }}">Struktur</a>
-    </nav>
-
-    <div style="flex-shrink:0;">
-        @auth
-            <span style="font-size:13px;color:#475569;margin-right:8px;">{{ auth()->user()->name }}</span>
-            <form method="POST" action="{{ route('logout') }}" style="display:inline;">
-                @csrf
-                <button style="background:none;border:none;color:#f87171;font-size:13px;cursor:pointer;">Logout</button>
-            </form>
-        @else
-            <a href="{{ route('login') }}" class="auth-btn">Login</a>
-        @endauth
-    </div>
-</header>
+@include('partials.navbar')
 
 <!-- ── MAP ── -->
 <div id="map"></div>
+
+<!-- ── PANEL TOGGLE ── -->
+<button id="panel-toggle" onclick="togglePanel()">
+    <svg viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M3 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2z" clip-rule="evenodd"/>
+    </svg>
+    <span id="panel-toggle-label">Layer</span>
+</button>
 
 <!-- ── SIDE PANEL ── -->
 <aside id="panel">
@@ -272,10 +327,10 @@
 
         {{-- LEGENDA STATUS --}}
         <p class="sec-label">Status Pembayaran</p>
-        <div class="leg-item"><span class="leg-swatch" style="background:#22c55e;"></span>Sudah Bayar</div>
-        <div class="leg-item"><span class="leg-swatch" style="background:#ef4444;"></span>Belum Bayar / Belum Lunas</div>
-        <div class="leg-item"><span class="leg-swatch" style="background:#f59e0b;"></span>PBB Bayar 0 Rupiah</div>
-        <div class="leg-item"><span class="leg-swatch" style="background:#475569;"></span>Lainnya / N/A</div>
+        <div class="leg-item"><span class="leg-swatch" style="background:transparent;border:2px solid #22c55e;"></span>Sudah Bayar</div>
+        <div class="leg-item"><span class="leg-swatch" style="background:transparent;border:2px solid #ef4444;"></span>Belum Bayar / Belum Lunas</div>
+        <div class="leg-item"><span class="leg-swatch" style="background:transparent;border:2px solid #f59e0b;"></span>PBB Bayar 0 Rupiah</div>
+        <div class="leg-item"><span class="leg-swatch" style="background:transparent;border:2px solid #475569;"></span>Lainnya / N/A</div>
 
         <hr class="divider">
 
@@ -312,6 +367,20 @@
 
     </div>
 </aside>
+
+<!-- ── SEARCH BAR ── -->
+<div id="search-bar">
+    <input id="search-input" type="text" placeholder="" autocomplete="off">
+    <button id="search-btn">Cari</button>
+    <div id="search-results"></div>
+</div>
+
+<!-- ── HOVER TOOLTIP ── -->
+<div id="hover-tooltip">
+    <div class="tt-row"><span class="tt-key">ID Objek Pajak</span><span class="tt-val" id="tt-id">—</span></div>
+    <div class="tt-row"><span class="tt-key">Luas Tanah</span><span class="tt-val" id="tt-lt">—</span></div>
+    <div class="tt-row"><span class="tt-key">Luas Bangunan</span><span class="tt-val" id="tt-lb">—</span></div>
+</div>
 
 <!-- ── STAT ── -->
 <div id="stat">Memuat…</div>
@@ -369,9 +438,61 @@ const map = new maplibregl.Map({
     }
 });
 
+// AttrControl ditambah SEBELUM NavigationControl agar muncul di bawah compass
+const ATTR_TEXTS = {
+    dark     : '© CARTO © OpenStreetMap',
+    osm      : '© OpenStreetMap contributors',
+    satellite: '© Google'
+};
+
+class AttrControl {
+    onAdd() {
+        this._visible = false;
+        this._el = document.createElement('div');
+        this._el.className = 'maplibregl-ctrl';
+        this._el.style.cssText = 'display:flex;align-items:center;gap:4px;padding:2px 0;justify-content:flex-end;';
+        this._el.innerHTML = `
+            <span id="attr-text" style="display:none;font-size:10px;color:#475569;background:rgba(2,6,23,.88);border:1px solid rgba(255,255,255,.09);border-radius:5px;padding:2px 8px;white-space:nowrap;"></span>
+            <button id="attr-btn" title="Toggle attribution" style="width:22px;height:22px;border-radius:50%;border:1px solid rgba(255,255,255,.09);background:rgba(2,6,23,.88);color:#64748b;font-size:14px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;">ⓘ</button>
+        `;
+        this._el.querySelector('#attr-btn').addEventListener('click', () => {
+            this._visible = !this._visible;
+            const t = this._el.querySelector('#attr-text');
+            t.style.display = this._visible ? 'inline-block' : 'none';
+            this._el.querySelector('#attr-btn').style.color = this._visible ? '#22d3ee' : '#64748b';
+        });
+        this.updateText('dark');
+        return this._el;
+    }
+    onRemove() {}
+    updateText(key) {
+        const t = this._el?.querySelector('#attr-text');
+        if (t) t.textContent = ATTR_TEXTS[key] ?? '';
+    }
+}
+const attrCtrl = new AttrControl();
+map.addControl(attrCtrl, 'bottom-right');
+
 map.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'bottom-right');
+
+// Sisipkan tombol Home di antara compass dan zoom-in dalam grup NavigationControl
+const navGroup = map.getContainer().querySelector('.maplibregl-ctrl-bottom-right .maplibregl-ctrl-group');
+if (navGroup) {
+    const homeBtn = document.createElement('button');
+    homeBtn.title = 'Reset tampilan';
+    homeBtn.setAttribute('aria-label', 'Reset tampilan');
+    homeBtn.style.cssText = 'display:flex;align-items:center;justify-content:center;color:#333;';
+    homeBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>`;
+    homeBtn.addEventListener('click', () => {
+        if (initialBounds) {
+            map.fitBounds(initialBounds, { padding: 80, maxZoom: 14, duration: 800 });
+        }
+    });
+    const zoomIn = navGroup.querySelector('.maplibregl-ctrl-zoom-in');
+    if (zoomIn) navGroup.insertBefore(homeBtn, zoomIn);
+}
+
 map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
-map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
 
 // tombol Dark aktif secara default
 document.addEventListener('DOMContentLoaded', () => {
@@ -379,13 +500,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btn) { btn.style.borderColor = 'rgba(34,211,238,.5)'; btn.style.color = '#22d3ee'; }
 });
 
-// auto-fit ke bounds data dari Martin
+// auto-fit ke bounds data dari Martin, simpan untuk reset view
+let initialBounds = null;
+
 fetch(`${MARTIN_URL}/${TABLE}`)
     .then(r => r.json())
     .then(meta => {
         if (meta.bounds) {
             const [w, s, e, n] = meta.bounds;
-            map.fitBounds([[w, s], [e, n]], { padding: 80, maxZoom: 14, duration: 800 });
+            initialBounds = [[w, s], [e, n]];
+            map.fitBounds(initialBounds, { padding: 80, maxZoom: 14, duration: 800 });
         }
     })
     .catch(() => {});
@@ -406,15 +530,15 @@ map.on('load', () => {
         id: 'tanah-fill', type: 'fill', source: 'tanah', 'source-layer': TABLE,
         paint: {
             'fill-color'  : statusColor,
-            'fill-opacity': ['interpolate', ['linear'], ['zoom'], 10, 0.55, 16, 0.75]
+            'fill-opacity': 0
         }
     });
 
     map.addLayer({
         id: 'tanah-line', type: 'line', source: 'tanah', 'source-layer': TABLE,
         paint: {
-            'line-color': 'rgba(0,0,0,0.35)',
-            'line-width': ['interpolate', ['linear'], ['zoom'], 10, 0.2, 15, 0.8, 18, 1.5]
+            'line-color'  : statusColor,
+            'line-width'  : ['interpolate', ['linear'], ['zoom'], 10, 0.5, 15, 1.2, 18, 2]
         }
     });
 
@@ -534,6 +658,13 @@ function updateStat() {
 
 // ── HOVER ─────────────────────────────────────────────────────────────────────
 let hoveredId = null;
+const tooltip  = document.getElementById('hover-tooltip');
+
+function fmtT(val, dec = 0) {
+    if (val == null || val === '') return '—';
+    const n = parseFloat(val);
+    return isNaN(n) ? val : n.toLocaleString('id-ID', { maximumFractionDigits: dec });
+}
 
 map.on('mousemove', 'tanah-fill', (e) => {
     if (!e.features.length) return;
@@ -546,10 +677,21 @@ map.on('mousemove', 'tanah-fill', (e) => {
     if (hoveredId != null) {
         map.setFeatureState({ source: 'tanah', sourceLayer: TABLE, id: hoveredId }, { hovered: true });
     }
+
+    const p = e.features[0].properties;
+    document.getElementById('tt-id').textContent = p.idobjekpaj ?? '—';
+    document.getElementById('tt-lt').textContent = p.luas_tanah != null ? fmtT(p.luas_tanah) + ' m²' : '—';
+    document.getElementById('tt-lb').textContent = p.luas_bangu != null ? fmtT(p.luas_bangu) + ' m²' : '—';
+
+    const rect = map.getCanvas().getBoundingClientRect();
+    tooltip.style.left = (e.originalEvent.clientX - rect.left + 14) + 'px';
+    tooltip.style.top  = (e.originalEvent.clientY - rect.top  - 10) + 'px';
+    tooltip.style.display = 'block';
 });
 
 map.on('mouseleave', 'tanah-fill', () => {
     map.getCanvas().style.cursor = '';
+    tooltip.style.display = 'none';
     if (hoveredId !== null) {
         map.setFeatureState({ source: 'tanah', sourceLayer: TABLE, id: hoveredId }, { hovered: false });
         hoveredId = null;
@@ -692,6 +834,82 @@ map.on('click', 'kel-fill', (e) => {
         .addTo(map);
 });
 
+// ── PANEL TOGGLE ─────────────────────────────────────────────────────────────
+function togglePanel() {
+    const panel = document.getElementById('panel');
+    const label = document.getElementById('panel-toggle-label');
+    const isHidden = panel.classList.toggle('hidden');
+    label.textContent = isHidden ? 'Layer' : 'Tutup';
+}
+
+// ── SEARCH / GEOCODING ───────────────────────────────────────────────────────
+const searchInput   = document.getElementById('search-input');
+const searchBtn     = document.getElementById('search-btn');
+const searchResults = document.getElementById('search-results');
+let searchMarker    = null;
+
+function closeResults() { searchResults.style.display = 'none'; }
+
+async function doSearch() {
+    const q = searchInput.value.trim();
+    if (!q) return;
+
+    searchBtn.disabled = true;
+    searchBtn.textContent = '…';
+    closeResults();
+
+    try {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=id&viewbox=106.68,-6.38,107.00,-6.10&bounded=0&q=${encodeURIComponent(q)}`;
+        const res  = await fetch(url, { headers: { 'Accept-Language': 'id' } });
+        const data = await res.json();
+
+        searchResults.innerHTML = '';
+
+        if (!data.length) {
+            searchResults.innerHTML = '<div class="sr-empty">Alamat tidak ditemukan</div>';
+            searchResults.style.display = 'block';
+            return;
+        }
+
+        data.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'sr-item';
+            const parts = item.display_name.split(',');
+            const name   = parts[0].trim();
+            const detail = parts.slice(1, 4).join(',').trim();
+            div.innerHTML = `<div class="sr-name">${name}</div><div class="sr-detail">${detail}</div>`;
+            div.addEventListener('click', () => {
+                const lng = parseFloat(item.lon);
+                const lat = parseFloat(item.lat);
+                map.flyTo({ center: [lng, lat], zoom: 17, duration: 900 });
+
+                if (searchMarker) searchMarker.remove();
+                searchMarker = new maplibregl.Marker({ color: '#22d3ee' })
+                    .setLngLat([lng, lat])
+                    .addTo(map);
+
+                searchInput.value = name;
+                closeResults();
+            });
+            searchResults.appendChild(div);
+        });
+
+        searchResults.style.display = 'block';
+    } catch {
+        searchResults.innerHTML = '<div class="sr-empty">Gagal menghubungi layanan pencarian</div>';
+        searchResults.style.display = 'block';
+    } finally {
+        searchBtn.disabled = false;
+        searchBtn.textContent = 'Cari';
+    }
+}
+
+searchBtn.addEventListener('click', doSearch);
+searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
+document.addEventListener('click', (e) => {
+    if (!document.getElementById('search-bar').contains(e.target)) closeResults();
+});
+
 // ── BASEMAP SWITCHER — hanya toggle visibility, TIDAK pakai setStyle() ────────
 const BM_MAP = { dark: 'bm-dark', osm: 'bm-osm', satellite: 'bm-sat' };
 
@@ -707,6 +925,7 @@ function setBasemap(key) {
     });
     const btn = document.getElementById('bm-' + key);
     if (btn) { btn.style.borderColor = 'rgba(34,211,238,.5)'; btn.style.color = '#22d3ee'; }
+    attrCtrl.updateText(key);
 }
 </script>
 

@@ -1,38 +1,190 @@
-<nav class="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-md">
+@once
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+@endonce
+
+<nav x-data="{ mobileMenu: false }" class="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-md">
 
     <div class="max-w-7xl mx-auto px-8">
 
         <div class="flex items-center justify-between h-16">
 
             <!-- LOGO -->
-            <a href="{{ route('home') }}">
-                <img src="{{ asset('img/logo.png') }}" alt="Logo" style="height:36px;width:auto;">
+            <a href="{{ url('/home') }}" class="flex-shrink-0">
+                <img src="{{ asset('img/logo-bapenda.png') }}" alt="Logo Bapenda" style="height:36px;width:auto;">
             </a>
 
-            <!-- MENU -->
-            <div class="hidden md:flex items-center gap-1 text-sm font-medium text-white">
+            <!-- MENU DESKTOP -->
+            <div class="hidden md:flex items-center gap-1 text-sm font-medium">
 
-                <a href="{{ route('home') }}"
-                   class="px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/5 transition-colors
-                          {{ request()->routeIs('home') ? 'text-orange-400 font-semibold' : '' }}">
+                <a href="{{ url('/home') }}"
+                   class="px-4 py-2 rounded-lg transition-colors
+                          {{ request()->routeIs('home') ? 'text-orange-400 font-semibold' : 'text-white/80 hover:text-white hover:bg-white/5' }}">
                     Beranda
                 </a>
 
-                <a href="{{ route('katalog.pbbp2') }}"
-                   class="px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/5 transition-colors
-                          {{ request()->routeIs('katalog.pbbp2') ? 'text-orange-400 font-semibold' : '' }}">
-                    Katalog
-                </a>
+                <!-- KATALOG DROPDOWN -->
+                <div class="relative" x-data="{ open: false }"
+                     @mouseenter="open = true" @mouseleave="open = false">
 
-                <a href="{{ route('tentang') }}"
-                   class="px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/5 transition-colors
-                          {{ request()->routeIs('tentang') ? 'text-orange-400 font-semibold' : '' }}">
+                    <button class="flex items-center gap-1.5 px-4 py-2 rounded-lg transition-colors
+                                   {{ request()->routeIs('katalog*') ? 'text-orange-400 font-semibold' : 'text-white/80 hover:text-white hover:bg-white/5' }}"
+                            :class="open ? 'bg-white/5' : ''">
+                        Katalog
+                        <svg class="w-3.5 h-3.5 opacity-60 transition-transform duration-200"
+                             :class="open ? 'rotate-180' : ''"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    <!-- DROPDOWN PANEL -->
+                    <div x-show="open"
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 -translate-y-1"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-100"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 -translate-y-1"
+                         class="absolute left-0 top-full pt-2 z-50"
+                         style="min-width:360px;">
+
+                        <div class="bg-slate-900 rounded-2xl shadow-2xl overflow-hidden" style="border:1px solid rgba(255,255,255,0.08);">
+
+                            {{-- DASHBOARD PBB-P2 --}}
+                            @auth
+                            <a href="{{ route('katalog.dashboard') }}"
+                               class="flex items-center gap-4 px-5 py-4 hover:bg-white/5 transition-colors group">
+                            @else
+                            <a href="{{ route('login') }}"
+                               class="flex items-center gap-4 px-5 py-4 hover:bg-white/5 transition-colors group">
+                            @endauth
+                                <div class="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-500/20 transition-colors">
+                                    <svg class="w-5 h-5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-sm font-semibold text-white group-hover:text-orange-400 transition-colors">Dashboard PBB-P2</p>
+                                        <span class="text-xs bg-orange-500/15 text-orange-400 border border-orange-500/25 px-2 py-0.5 rounded-full font-semibold">GEO BI</span>
+                                        @guest<svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>@endguest
+                                    </div>
+                                    <p class="text-xs text-slate-400 mt-0.5">Analitik interaktif, chart distribusi, dan peta sebaran pajak.</p>
+                                </div>
+                            </a>
+
+                            <div class="h-px bg-white/5 mx-5"></div>
+
+                            {{-- PBB-P2 --}}
+                            @auth
+                            <a href="{{ url('/katalog/pbb-p2') }}"
+                               class="flex items-center gap-4 px-5 py-4 hover:bg-white/5 transition-colors group">
+                            @else
+                            <a href="{{ route('login') }}"
+                               class="flex items-center gap-4 px-5 py-4 hover:bg-white/5 transition-colors group">
+                            @endauth
+                                <div class="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-cyan-500/20 transition-colors">
+                                    <svg class="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-sm font-semibold text-white group-hover:text-cyan-400 transition-colors">Katalog PBB-P2</p>
+                                        @guest
+                                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                                        </svg>
+                                        @endguest
+                                    </div>
+                                    <p class="text-xs text-slate-400 mt-0.5">Data geospasial PBB-P2 per wilayah kecamatan DKI Jakarta.</p>
+                                </div>
+                            </a>
+
+                            <div class="h-px bg-white/5 mx-5"></div>
+
+                            {{-- PAJAK DAERAH — coming soon --}}
+                            <div class="flex items-center gap-4 px-5 py-4 opacity-35 cursor-not-allowed select-none">
+                                <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918"/>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-sm font-semibold text-white">Katalog Pajak Daerah</p>
+                                        <span class="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded-full">Segera</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 mt-0.5">Dashboard geospasial PBJT perhotelan, makanan, hiburan, parkir, reklame, dan air tanah.</p>
+                                </div>
+                            </div>
+
+                            <div class="h-px bg-white/5 mx-5"></div>
+
+                            {{-- JST --}}
+                            @auth
+                            <a href="#" class="flex items-center gap-4 px-5 py-4 hover:bg-white/5 transition-colors group opacity-50 cursor-not-allowed">
+                            @else
+                            <a href="{{ route('login') }}" class="flex items-center gap-4 px-5 py-4 hover:bg-white/5 transition-colors group">
+                            @endauth
+                                <div class="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694 4.125-8.25 4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 2.625v5.625"/>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-sm font-semibold text-white group-hover:text-orange-400 transition-colors">Katalog JST</p>
+                                        @guest
+                                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                                        </svg>
+                                        @endguest
+                                    </div>
+                                    <p class="text-xs text-slate-400 mt-0.5">Dashboard, sistem, dan peta tematik terintegrasi.</p>
+                                </div>
+                            </a>
+
+                            <div class="h-px bg-white/5 mx-5"></div>
+
+                            {{-- LAINNYA --}}
+                            @auth
+                            <a href="#" class="flex items-center gap-4 px-5 py-4 hover:bg-white/5 transition-colors group opacity-50 cursor-not-allowed">
+                            @else
+                            <a href="{{ route('login') }}" class="flex items-center gap-4 px-5 py-4 hover:bg-white/5 transition-colors group">
+                            @endauth
+                                <div class="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-sm font-semibold text-white group-hover:text-green-400 transition-colors">Katalog Lainnya</p>
+                                        @guest
+                                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                                        </svg>
+                                        @endguest
+                                    </div>
+                                    <p class="text-xs text-slate-400 mt-0.5">Akses berkas spreadsheet monitoring & pengukuran.</p>
+                                </div>
+                            </a>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <a href="{{ url('/tentang') }}"
+                   class="px-4 py-2 rounded-lg transition-colors
+                          {{ request()->routeIs('tentang') ? 'text-orange-400 font-semibold' : 'text-white/80 hover:text-white hover:bg-white/5' }}">
                     Tentang
                 </a>
 
-                <a href="{{ route('struktur') }}"
-                   class="px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/5 transition-colors
-                          {{ request()->routeIs('struktur') ? 'text-orange-400 font-semibold' : '' }}">
+                <a href="{{ url('/struktur') }}"
+                   class="px-4 py-2 rounded-lg transition-colors
+                          {{ request()->routeIs('struktur') ? 'text-orange-400 font-semibold' : 'text-white/80 hover:text-white hover:bg-white/5' }}">
                     Struktur
                 </a>
 
@@ -40,15 +192,8 @@
 
             <!-- AUTH -->
             <div class="hidden md:flex items-center gap-3">
-
                 @auth
                     <span class="text-sm text-slate-400">{{ auth()->user()->name }}</span>
-
-                    <a href="{{ route('dashboard') }}"
-                       class="text-sm px-4 py-2 rounded-lg text-cyan-400 hover:bg-cyan-400/10 transition-colors">
-                        Dashboard
-                    </a>
-
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button class="text-sm px-4 py-2 rounded-lg text-red-400 hover:bg-red-400/10 transition-colors">
@@ -68,11 +213,41 @@
                         Masuk
                     </a>
                 @endauth
-
             </div>
+
+            <!-- MOBILE TOGGLE -->
+            <button class="md:hidden text-white/80 p-2" @click="mobileMenu = !mobileMenu">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path x-show="!mobileMenu" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                    <path x-show="mobileMenu"  stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
 
         </div>
 
+    </div>
+
+    <!-- MOBILE MENU -->
+    <div x-show="mobileMenu"
+         x-transition:enter="transition ease-out duration-150"
+         x-transition:enter-start="opacity-0 -translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         class="md:hidden border-t border-white/10 bg-black/60 backdrop-blur-md px-6 py-4 flex flex-col gap-2 text-sm">
+        <a href="{{ url('/home') }}"    class="py-2 text-white/80 hover:text-white {{ request()->routeIs('home') ? 'text-orange-400 font-semibold' : '' }}">Beranda</a>
+        <a href="{{ url('/katalog/pbb-p2') }}" class="py-2 text-white/80 hover:text-white {{ request()->routeIs('katalog*') ? 'text-orange-400 font-semibold' : '' }}">Katalog</a>
+        <a href="{{ url('/tentang') }}" class="py-2 text-white/80 hover:text-white {{ request()->routeIs('tentang') ? 'text-orange-400 font-semibold' : '' }}">Tentang</a>
+        <a href="{{ url('/struktur') }}" class="py-2 text-white/80 hover:text-white {{ request()->routeIs('struktur') ? 'text-orange-400 font-semibold' : '' }}">Struktur</a>
+        <div class="border-t border-white/10 pt-3 mt-1">
+            @auth
+                <span class="block text-slate-400 mb-2">{{ auth()->user()->name }}</span>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button class="text-red-400">Logout</button>
+                </form>
+            @else
+                <a href="{{ route('login') }}" class="text-orange-400 font-semibold">Masuk</a>
+            @endauth
+        </div>
     </div>
 
 </nav>

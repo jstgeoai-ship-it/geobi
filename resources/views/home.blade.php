@@ -10,14 +10,21 @@
 
     @vite(['resources/css/app.css'])
 
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
 
 </head>
 
-<body class="bg-slate-950 text-white" x-data="{ mobileMenu:false }">
+<body class="bg-white dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
 
 <!-- NAVBAR -->
-<nav class="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-md">
+@include('partials.navbar')
+<nav style="display:none">
 
     <div class="max-w-7xl mx-auto px-8">
 
@@ -25,7 +32,7 @@
 
             <!-- LOGO -->
             <a href="{{ url('/home') }}" class="flex-shrink-0">
-                <img src="{{ asset('img/logo.png') }}" alt="Logo Bapenda" style="height:36px;width:auto;">
+                <img src="{{ asset('img/logo-bapenda.png') }}" alt="Logo-Bapenda" style="height:36px;width:auto;">
             </a>
 
             <!-- MENU DESKTOP -->
@@ -208,11 +215,7 @@
                     <span class="text-sm text-slate-400">
                         {{ auth()->user()->name }}
                     </span>
-                    <a href="{{ route('dashboard') }}"
-                       class="text-sm px-4 py-2 rounded-lg text-cyan-400 hover:bg-cyan-400/10 transition-colors">
-                        Dashboard
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}">
+<form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button class="text-sm px-4 py-2 rounded-lg text-red-400 hover:bg-red-400/10 transition-colors">
                             Logout
@@ -260,7 +263,7 @@
     </div>
 
     <!-- OVERLAY -->
-    <div class="absolute inset-0 bg-slate-950/70"></div>
+    <div class="absolute inset-0 bg-white/50 dark:bg-slate-950/70 transition-colors duration-300"></div>
 
     <!-- CONTENT -->
     <div class="relative z-10 flex min-h-screen items-center justify-center">
@@ -268,9 +271,9 @@
         <div class="text-center max-w-5xl px-6">
 
             <!-- BADGE -->
-            <div class="inline-flex items-center rounded-full border border-cyan-500/30 bg-cyan-500/10 px-5 py-2">
+            <div class="inline-flex items-center rounded-full border border-cyan-500/30 bg-cyan-500/10 px-4 py-1.5">
 
-                <span class="text-cyan-400">
+                <span class="text-cyan-400 text-xs md:text-sm">
                     ● BAPENDA DKI Jakarta • Platform Geospasial
                 </span>
 
@@ -279,16 +282,17 @@
             <!-- LOGO -->
             <div class="mt-8">
 
-                <img src="{{ asset('img/logo.png') }}"
+                <img src="{{ asset('img/logo-bapenda1.png') }}"
                      class="h-32 mx-auto">
 
             </div>
 
             <!-- TITLE -->
-            <h1 class="mt-8 text-5xl md:text-7xl font-bold">
+            <h1 class="mt-8 text-3xl md:text-4xl font-bold leading-tight text-slate-900 dark:text-white transition-colors duration-300">
 
-                SmartMap
+                SmartMap Geospatial Business Intelligence
 
+                <br>
                 <span class="text-cyan-400">
                     Jakarta SmartTax
                 </span>
@@ -296,7 +300,7 @@
             </h1>
 
             <!-- SUBTITLE -->
-            <p class="mt-6 text-lg md:text-2xl text-slate-300">
+            <p class="mt-6 text-lg md:text-2xl text-slate-600 dark:text-slate-300 transition-colors duration-300">
 
                 Akses data geospasial perpajakan daerah Provinsi DKI Jakarta
 
@@ -308,6 +312,35 @@
     </div>
 
 </section>
+
+<!-- DARK / LIGHT MODE TOGGLE -->
+<div x-data="{ dark: document.documentElement.classList.contains('dark') }"
+     x-init="$watch('dark', value => {
+         document.documentElement.classList.toggle('dark', value);
+         localStorage.setItem('theme', value ? 'dark' : 'light');
+     })"
+     class="fixed bottom-6 right-6 z-50">
+
+    <button @click="dark = !dark"
+            class="w-12 h-12 rounded-full flex items-center justify-center shadow-lg
+                   bg-white text-slate-700 hover:bg-slate-100
+                   dark:bg-slate-800 dark:text-amber-400 dark:hover:bg-slate-700
+                   transition-colors duration-300"
+            aria-label="Toggle dark mode">
+
+        <!-- MOON (shown in light mode, click to go dark) -->
+        <svg x-show="!dark" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+        </svg>
+
+        <!-- SUN (shown in dark mode, click to go light) -->
+        <svg x-show="dark" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1.5m0 15V21m9-9h-1.5M4.5 12H3m15.36 6.36l-1.06-1.06M6.7 6.7L5.64 5.64m12.72 0l-1.06 1.06M6.7 17.3l-1.06 1.06M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z"/>
+        </svg>
+
+    </button>
+
+</div>
 
 </body>
 </html>
